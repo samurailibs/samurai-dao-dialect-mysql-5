@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import jp.dodododo.dao.dialect.MySQL;
 import jp.dodododo.dao.error.SQLError;
 import jp.dodododo.dao.util.WrapperUtil;
 import jp.dodododo.dao.wrapper.PreparedStatementWrapper;
@@ -13,7 +14,9 @@ public class MySQLPreparedStatement extends PreparedStatementWrapper {
 	public MySQLPreparedStatement(PreparedStatement preparedStatement) {
 		super(preparedStatement);
 
-		enableStreamingResults(preparedStatement);
+		if (MySQL.isEnableStreamingResults()) {
+			enableStreamingResults(preparedStatement);
+		}
 	}
 
 	protected void enableStreamingResults(PreparedStatement preparedStatement) {

@@ -33,10 +33,7 @@ import jp.dodododo.dao.annotation.Dialects;
 import jp.dodododo.dao.annotation.Rel;
 import jp.dodododo.dao.annotation.Relations;
 import jp.dodododo.dao.annotation.Table;
-import jp.dodododo.dao.dialect.Dialect;
-import jp.dodododo.dao.dialect.DialectManager;
-import jp.dodododo.dao.dialect.HSQL;
-import jp.dodododo.dao.dialect.Oracle;
+import jp.dodododo.dao.dialect.*;
 import jp.dodododo.dao.dialect.sqlite.SQLite;
 import jp.dodododo.dao.exception.NoParameterizedException;
 import jp.dodododo.dao.exception.SQLRuntimeException;
@@ -205,22 +202,27 @@ public class RdbDaoTest {
 	}
 
 	@Test
-	public void testInsertBinary() throws Exception {
-		Dialect dialect = DialectManager.getDialect(getConnection());
-		if (dialect instanceof SQLite) {
-			return;
-		}
-		dao = newTestDao(getDataSource());
-		BinaryTable binaryTable = new BinaryTable();
-		InputStream binary = getClass().getClassLoader().getResourceAsStream("jp/dodododo/dao/dialect.properties");
-		binaryTable.setBinary(binary);
-		int count = dao.insert(binaryTable);
-		assertEquals(1, count);
+    public void testInsertBinary() throws Exception {
+        try {
+            MySQL.enableStreamingResults(false);
+            Dialect dialect = DialectManager.getDialect(getConnection());
+            if (dialect instanceof SQLite) {
+                return;
+            }
+            dao = newTestDao(getDataSource());
+            BinaryTable binaryTable = new BinaryTable();
+            InputStream binary = getClass().getClassLoader().getResourceAsStream("jp/dodododo/dao/dialect.properties");
+            binaryTable.setBinary(binary);
+            int count = dao.insert(binaryTable);
+            assertEquals(1, count);
 
-		binaryTable = dao.selectOne("select * from BINARY_TABLE where id=/*id*/0", args("id", binaryTable.getId()), BinaryTable.class).get();
-		String expected = ReaderUtil.readText(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
-				"jp/dodododo/dao/dialect.properties"), "UTF-8"));
-		assertEquals(expected, ReaderUtil.readText(new InputStreamReader(binaryTable.getBinary(), "UTF-8")));
+            binaryTable = dao.selectOne("select * from BINARY_TABLE where id=/*id*/0", args("id", binaryTable.getId()), BinaryTable.class).get();
+            String expected = ReaderUtil.readText(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
+                    "jp/dodododo/dao/dialect.properties"), "UTF-8"));
+            assertEquals(expected, ReaderUtil.readText(new InputStreamReader(binaryTable.getBinary(), "UTF-8")));
+        } finally {
+            MySQL.enableStreamingResults(true);
+        }
 	}
 
 	@Test

@@ -3,7 +3,9 @@ package jp.dodododo.dao.dialect;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import jp.dodododo.dao.annotation.Internal;
 import jp.dodododo.dao.dialect.mysql.MySQLPreparedStatement;
+import jp.dodododo.dao.dialect.mysql.MySQLTableNameResolver;
 import jp.dodododo.dao.metadata.TableMetaData;
 import jp.dodododo.dao.object.PropertyDesc;
 import jp.dodododo.dao.paging.LimitOffset;
@@ -72,5 +74,25 @@ public class MySQL extends Standard {
 	@Override
 	public String getSchema(TableMetaData metaData) {
 		return metaData.getCatalog();
+	}
+
+	@Override
+	public TableNameResolver getTableNameResolver() {
+		return new MySQLTableNameResolver();
+	}
+
+	private static ThreadLocal<Boolean> enableStreaming = ThreadLocal.withInitial(() -> false);
+
+	public static void setDefaultEnableStreaming(boolean enable) {
+		enableStreaming = ThreadLocal.withInitial(() -> enable);
+	}
+
+	public static void enableStreamingResults(boolean enable) {
+		enableStreaming.set(enable);
+	}
+
+	@Internal
+	public static boolean isEnableStreamingResults() {
+		return enableStreaming.get();
 	}
 }
