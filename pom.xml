@@ -167,7 +167,7 @@
           <use>false</use>
           <quiet>true</quiet>
           <failOnError>false</failOnError>
-          <source>1.6</source>
+          <source>1.8</source>
           <encoding>UTF-8</encoding>
           <docencoding>UTF-8</docencoding>
           <charset>UTF-8</charset>
